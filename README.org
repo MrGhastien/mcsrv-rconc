@@ -1,0 +1,4 @@
+#+TITLE: MCSRV-RCONC
+#+AUTHOR: Bastien Morino
+
+* Small RCon client for Minecraft servers

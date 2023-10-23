@@ -1,0 +1,6 @@
+gcc
+-Wall
+-Wextra
+-I./include
+-g
+-Werror=return-type
