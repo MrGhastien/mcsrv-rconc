@@ -1,10 +1,10 @@
 CC := gcc
-CFLAGS := -Wall -Wextra
+CFLAGS := -Wall -Wextra -I./include
 LDFLAGS :=
 
 SRCS := $(wildcard src/*.c)
 HDRS := $(wildcard include/*.h)
-OBJS := $(wildcard src/%.c,obj/%.o,$(SRCS))
+OBJS := $(patsubst src/%.c,obj/%.o,$(SRCS))
 
 DIRS = obj/
 
