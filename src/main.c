@@ -64,6 +64,7 @@ static int authenticate(int sockfd) {
     pkt.requestID = -1;
     char buf[BUFFER_SIZE];
     while(pkt.requestID == -1) {
+        fputs("Enter password: ", stdout);
         readline(buf, BUFFER_SIZE, stdin);
 
         pktinit(&pkt, PKT_LOGIN, buf);
@@ -78,7 +79,7 @@ static int authenticate(int sockfd) {
             fputs("Incorrect password.\n", stderr);
         }
     }
-    return 0;
+    return 1;
 }
 
 static int initConnection() {
