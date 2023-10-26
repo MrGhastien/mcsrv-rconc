@@ -59,17 +59,29 @@ int cmdrecv(int sockfd, char* responseBuffer) {
     return 0;
 }
 
-int main(int argc, char* argv[]) {
+static int authenticate(int sockfd) {
+    packet pkt;
+    pkt.requestID = -1;
+    char buf[BUFFER_SIZE];
+    while(pkt.requestID == -1) {
+        readline(buf, BUFFER_SIZE, stdin);
 
-    for (int i = 1; i < argc; i++) {
-        if(memeq(argv[i], "-v", strlen(argv[i])))
-            verbose = 1;
-        else {
-            err(64, "Unknown option '%s'", argv[i]);
-            return 64;
+        pktinit(&pkt, PKT_LOGIN, buf);
+        pktsend(sockfd, &pkt);
+
+        if (!pktrecv(sockfd, &pkt)) {
+            puts("Failed to read packet.");
+            return 0;
+        }
+
+        if (pkt.requestID == -1) {
+            fputs("Incorrect password.\n", stderr);
         }
     }
+    return 0;
+}
 
+static int initConnection() {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
         err(1, "%s", "Could not create socket.");
@@ -84,17 +96,25 @@ int main(int argc, char* argv[]) {
     if(result == -1) {
         err(2, "%s", "Could not connect to server");
     }
+    return sockfd;
+}
 
-    packet pkt;
+int main(int argc, char* argv[]) {
 
-    pktinit(&pkt, PKT_LOGIN, "abc");
-    pktsend(sockfd, &pkt);
-
-    if (!pktrecv(sockfd, &pkt)) {
-        puts("Failed to read packet.");
-        return 1;
+    for (int i = 1; i < argc; i++) {
+        if(memeq(argv[i], "-v", strlen(argv[i])))
+            verbose = 1;
+        else {
+            err(64, "Unknown option '%s'", argv[i]);
+            return 64;
+        }
     }
 
+    int sockfd = initConnection();
+    
+    if(!authenticate(sockfd))
+        return 1;
+   
     int shouldRun = 1;
     char request[BUFFER_SIZE];
     char response[BUFFER_SIZE];
