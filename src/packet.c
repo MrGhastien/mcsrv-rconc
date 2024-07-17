@@ -67,12 +67,15 @@ int pktrecv(int sockfd, packet* outPacket) {
     }
 
     totalLen = 0;
-    while (totalLen < outPacket->length) {
-        int res = recv(sockfd, &outPacket->requestID + totalLen, outPacket->length - totalLen, 0);
+    while (totalLen < outPacket->length - 1) {
+        int res = recv(sockfd, &outPacket->requestID + totalLen, outPacket->length - totalLen - 1, 0);
         if(res <= 0)
             return 0;
         totalLen += res;
     }
+    char nullterm;
+    if(recv(sockfd, &nullterm, 1, 0) != 1)
+        return 0;
     if(verbose)
         printf("S -> \"%s\" [%s]\n", outPacket->payload, pkttype(outPacket->type));
     return 1;
